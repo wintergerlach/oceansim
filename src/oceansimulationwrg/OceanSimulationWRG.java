@@ -36,7 +36,12 @@ public class OceanSimulationWRG {
     private static final char LOBSTER = 'L';
     private static final char ROCK = 'R';
     private static final char JELLYFISH = 'J'; 
-   
+    
+    public static Point getRandomPoint(){
+        Point point = new Point(r1.nextInt(rows), r1.nextInt(cols));
+        return point;
+    }
+    
     /**
      * puts in start values for ocean 
      * @param ocean ocean to initialize
@@ -45,7 +50,7 @@ public class OceanSimulationWRG {
         int x = 0;
         int y = 0;
         int count = (rows*cols)/10;
-        Point point = new Point(r1.nextInt(rows), r1.nextInt(cols));
+        Point point = getRandomPoint();
         
         //places blank objects in all spots
         for(int i = 0; i < rows; i++){
@@ -56,11 +61,11 @@ public class OceanSimulationWRG {
         
         //randomly places fish in 10% of the board.....CHANGE LATER
         for(int i = 0; i<count; i++){ 
-            if(ocean[point.x][point.y] == EMPTY){
-                ocean[x][y] = FISH;
+            while(ocean[point.x][point.y] != EMPTY){
+                point = getRandomPoint();
             }
-            point.x = r1.nextInt(rows);
-            point.y = r1.nextInt(cols);
+            ocean[point.x][point.y] = FISH;
+            
         }
         
         //sets the total items to the count which is the number added intitally 
@@ -744,7 +749,8 @@ public class OceanSimulationWRG {
     }
     
     //deletes the eaten item based off the direction of the move
-    public static void eaten(char[][]ocean, char item, int row, int col, int direction, boolean[][]checked){
+    public static void eaten(char[][]ocean, char item, int row, int col, 
+            int direction, boolean[][]checked){
         //north
         if(direction == 0){
             ocean[row+1][col] = EMPTY;
@@ -769,7 +775,8 @@ public class OceanSimulationWRG {
     }
     
     //eat-in some cases destroy
-    public static void calculateEat(char[][]ocean, char item, int row, int col, int direction, boolean[][]checked){
+    public static void calculateEat(char[][]ocean, char item, int row, int col, 
+            int direction, boolean[][]checked){
        //boat crash- eat- other crashes
         char movedTo = ocean[row][col];
         int destroyed = r1.nextInt(100);
@@ -778,19 +785,19 @@ public class OceanSimulationWRG {
         
         //calcuates chance of fish being eaten or eating something
         //if it is eaten/eats calls the eaten function to remove what has been eaten from the world.
-        if(item == 'F'){
-            if((movedTo == 'S') && (r1.nextInt(100) < 25)){ //25% chance shark eats fish
+        if(item == FISH){
+            if((movedTo == SHARK) && (r1.nextInt(100) < 25)){ //25% chance shark eats fish
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'B') && (r1.nextInt(100) < 25)){//s5% chance boat catches fish
+            } else if((movedTo == BOAT) && (r1.nextInt(100) < 25)){//s5% chance boat catches fish
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'J') && (r1.nextInt(100) < 10)){//10% chance jelly eats fish
+            } else if((movedTo == JELLYFISH) && (r1.nextInt(100) < 10)){//10% chance jelly eats fish
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'J') && (r1.nextInt(100) < 25)){//25% chance fish eats jelly
-                ocean[row][col] = 'F';
+            } else if((movedTo == JELLYFISH) && (r1.nextInt(100) < 25)){//25% chance fish eats jelly
+                ocean[row][col] = FISH;
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'K') && (r1.nextInt(100) < 90)){//90% chsnce kraken eats fish
+            } else if((movedTo == KRAKEN) && (r1.nextInt(100) < 90)){//90% chsnce kraken eats fish
                 eaten(ocean, item, row, col, direction, checked);
-            }  else if((movedTo == 'A') && (r1.nextInt(100) < 75)){//75% chance bird eats fish 
+            }  else if((movedTo == BIRD) && (r1.nextInt(100) < 75)){//75% chance bird eats fish 
                 eaten(ocean, item, row, col, direction, checked);
             } else{//marks the spot as checked 
                 if(direction == 0){
@@ -813,25 +820,25 @@ public class OceanSimulationWRG {
         
         //calcuates chance of shark being eaten or eating something
         //if it is eaten/eats calls the eaten function to remove what has been eaten from the world.
-        if(item == 'S'){
-            if((movedTo == 'F') && (r1.nextInt(100) < 75)){//75% chance shark eats fish
-                ocean[row][col] = 'S';
+        if(item == SHARK){
+            if((movedTo == FISH) && (r1.nextInt(100) < 75)){//75% chance shark eats fish
+                ocean[row][col] = SHARK;
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'B') && (r1.nextInt(100) < 5)){//5% chance shark breaks boat
-                ocean[row][col] = 'S';
+            } else if((movedTo == BOAT) && (r1.nextInt(100) < 5)){//5% chance shark breaks boat
+                ocean[row][col] = SHARK;
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'B') && (r1.nextInt(100) < 10)){//10% chance boat catches shark
+            } else if((movedTo == BOAT) && (r1.nextInt(100) < 10)){//10% chance boat catches shark
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'J') && (r1.nextInt(100) < 75)){//75% chance shark eats jelly
-                ocean[row][col] = 'S';
+            } else if((movedTo == JELLYFISH) && (r1.nextInt(100) < 75)){//75% chance shark eats jelly
+                ocean[row][col] = SHARK;
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'K') && (r1.nextInt(100) < 90)){//90% chance kraken eats shark
+            } else if((movedTo == KRAKEN) && (r1.nextInt(100) < 90)){//90% chance kraken eats shark
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'L') && (r1.nextInt(100)<75)){//75% chance shark eats lobster
-                ocean[row][col] = 'S';
+            } else if((movedTo == LOBSTER) && (r1.nextInt(100)<75)){//75% chance shark eats lobster
+                ocean[row][col] = SHARK;
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'A') && (r1.nextInt(100)<25)){//25% chance shark eats bird
-                ocean[row][col] = 'S';
+            } else if((movedTo == BIRD) && (r1.nextInt(100)<25)){//25% chance shark eats bird
+                ocean[row][col] = SHARK;
                 eaten(ocean, item, row, col, direction, checked);
             }else{//nothing happens - marks spot as checked 
                 if(direction == 0){
@@ -854,18 +861,18 @@ public class OceanSimulationWRG {
         
         //calcuates chance of the iceburg being destroyed or destroying something
         //if it is destoryed/destroys calls the eaten function to remove what has been destroyed from the world.
-        if(item == 'I'){
-            if((movedTo == 'B') && (r1.nextInt(100) < 55)){//55% chance iceburg destroys boat
-                ocean[row][col] = 'I';
+        if(item == ICEBURG){
+            if((movedTo == BOAT) && (r1.nextInt(100) < 55)){//55% chance iceburg destroys boat
+                ocean[row][col] = ICEBURG;
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'R') && (r1.nextInt(100) < 20)){//20% chance iceburg destroys rock
-                ocean[row][col] = 'I';
+            } else if((movedTo == ROCK) && (r1.nextInt(100) < 20)){//20% chance iceburg destroys rock
+                ocean[row][col] = ICEBURG;
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'K') && (r1.nextInt(100) < 10)){//10% chance iceburg kills kraken
-                ocean[row][col] = 'I';
+            } else if((movedTo == KRAKEN) && (r1.nextInt(100) < 10)){//10% chance iceburg kills kraken
+                ocean[row][col] = ICEBURG;
                 eaten(ocean, item, row, col, direction, checked);
-            } else if((movedTo == 'O') && (r1.nextInt(100) < 95)){//95% chance iceburg destroys oilrig
-                ocean[row][col] = 'I';
+            } else if((movedTo == OILRIG) && (r1.nextInt(100) < 95)){//95% chance iceburg destroys oilrig
+                ocean[row][col] = ICEBURG;
                 eaten(ocean, item, row, col, direction, checked);
             }else{//marks spot as checked
                 if(direction == 0){
@@ -888,220 +895,193 @@ public class OceanSimulationWRG {
         
         //calcuates chance of the boat being destroyed or destroying something
         //if it is destoryed/destroys calls the eaten function to remove what has been destroyed from the world.
-        if(item=='B'){
-            if((movedTo=='F')&&(r1.nextInt(100)<75)){//75% chance boat catches fish
-                ocean[row][col]='B';
+        if(item == BOAT){
+            if((movedTo == FISH) && (r1.nextInt(100) < 75)){//75% chance boat catches fish
+                ocean[row][col] = BOAT;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='S')&&(r1.nextInt(100)<5)){//5% chance shark breaks boat
+            } else if((movedTo == SHARK) && (r1.nextInt(100) < 5)){//5% chance shark breaks boat
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='S')&&(r1.nextInt(100)<25)){//25% chance boat catches shark
-                ocean[row][col]='B';
+            } else if((movedTo == SHARK) && (r1.nextInt(100) < 25)){//25% chance boat catches shark
+                ocean[row][col] = BOAT;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='I')&&(r1.nextInt(100)<25)){//25% chance iceburg destroys boat
+            } else if((movedTo == ICEBURG) && (r1.nextInt(100) < 25)){//25% chance iceburg destroys boat
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='R')&&(r1.nextInt(100)<25)){//25% chance rock destroys boat 
+            } else if((movedTo == ROCK) && (r1.nextInt(100) < 25)){//25% chance rock destroys boat 
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='J')&&(r1.nextInt(100)<25)){//25% chance boat catches jelly
-                ocean[row][col]='B';
+            } else if((movedTo == JELLYFISH) && (r1.nextInt(100) < 25)){//25% chance boat catches jelly
+                ocean[row][col] = BOAT;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='K')&&(r1.nextInt(100)<90)){//90% chance kraken destroys boat
+            } else if((movedTo == KRAKEN) && (r1.nextInt(100) < 90)){//90% chance kraken destroys boat
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='L')&&(r1.nextInt(100)<25)){//25% chance boat catches lobster
-                ocean[row][col]='B';
+            } else if((movedTo == LOBSTER) && (r1.nextInt(100) < 25)){//25% chance boat catches lobster
+                ocean[row][col] = BOAT;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='A')&&(r1.nextInt(100)<5)){//5% chance boat kills bird
-                ocean[row][col]='B';
+            } else if((movedTo == BIRD) && (r1.nextInt(100) < 5)){//5% chance boat kills bird
+                ocean[row][col] = BOAT;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='O')&&(r1.nextInt(100)<25)){//25% chance boat kills oil rig
-                ocean[row][col]='B';
+            } else if((movedTo == OILRIG) && (r1.nextInt(100) < 25)){//25% chance boat kills oil rig
+                ocean[row][col] = BOAT;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='O')&&(destroyed <25)){//25% chance oil rig destroys boat
+            } else if((movedTo == OILRIG) && (destroyed < 25)){//25% chance oil rig destroys boat
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='O')&&(bothDestroyed <25)){ //25% chance both are destroyed
-                ocean[row][col]='^';
+            } else if((movedTo == OILRIG) && (bothDestroyed < 25)){ //25% chance both are destroyed
+                ocean[row][col] = '^';
                 eaten(ocean, item, row, col, direction, checked);
             }else{//marks spot as checked
-                if(direction==0){
-                    checked[row+1][col]=true;
+                if(direction == 0){
+                    checked[row + 1][col] = true;
                 }
                 
-                if(direction==1){
-                    checked[row][col-1]=true;
+                if(direction == 1){
+                    checked[row][col - 1] = true;
                 }
                 
-                if(direction==2){
-                    checked[row-1][col]=true;
+                if(direction == 2){
+                    checked[row - 1][col] = true;
                 }
                 
-                if(direction==3){
-                    checked[row][col+1]=true;
+                if(direction == 3){
+                    checked[row][col + 1] = true;
                 }
             }
         }
         
         //calcuates chance of kraken being eaten or eating something
         //if it is eaten/eats calls the eaten function to remove what has been eaten from the world.
-        if(item=='K'){
-            if((movedTo=='F')&&(r1.nextInt(100)<98)){//98%chance kraken eats fish
-                ocean[row][col]='K';
+        if(item == KRAKEN){
+            if((movedTo == FISH) && (r1.nextInt(100) < 98)){//98%chance kraken eats fish
+                ocean[row][col] = KRAKEN;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='S')&&(r1.nextInt(100)<98)){//98% chance kraken eats shark
-                ocean[row][col]='K';
+            } else if((movedTo== SHARK)&&(r1.nextInt(100)<98)){//98% chance kraken eats shark
+                ocean[row][col]= KRAKEN;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='B')&&(r1.nextInt(100)<98)){//98% chance kraken destorys boat
-                ocean[row][col]='K';
+            } else if((movedTo == BOAT) && (r1.nextInt(100) < 98)){//98% chance kraken destorys boat
+                ocean[row][col] = KRAKEN;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='L')&&(r1.nextInt(100)<98)){//98% chance kraken eats lobster
-                ocean[row][col]='K';
+            } else if((movedTo == LOBSTER) && (r1.nextInt(100) < 98)){//98% chance kraken eats lobster
+                ocean[row][col] = KRAKEN;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='J')&&(r1.nextInt(100)<98)){//98% chance kraken eats jelly
-                ocean[row][col]='K';
+            } else if((movedTo == JELLYFISH) && (r1.nextInt(100) < 98)){//98% chance kraken eats jelly
+                ocean[row][col] = KRAKEN;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='A')&&(r1.nextInt(100)<80)){//80% chance kraken eats bird
-                ocean[row][col]='K';
+            } else if((movedTo == BIRD) && (r1.nextInt(100) < 80)){//80% chance kraken eats bird
+                ocean[row][col] = KRAKEN;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='O')&&(r1.nextInt(100)<98)){//98% chance kraken destroys oil rig
-                ocean[row][col]='K';
+            } else if((movedTo == OILRIG) && (r1.nextInt(100) < 98)){//98% chance kraken destroys oil rig
+                ocean[row][col] = KRAKEN;
                 eaten(ocean, item, row, col, direction, checked);
             }else{//marked as checked
-                if(direction==0){
-                    checked[row+1][col]=true;
+                if(direction == 0){
+                    checked[row + 1][col] = true;
                 }
                 
-                if(direction==1){
-                    checked[row][col-1]=true;
+                if(direction == 1){
+                    checked[row][col - 1] = true;
                 }
                 
-                if(direction==2){
-                    checked[row-1][col]=true;
+                if(direction == 2){
+                    checked[row - 1][col] = true;
                 }
                 
-                if(direction==3){
-                    checked[row][col+1]=true;
+                if(direction == 3){
+                    checked[row][col + 1] = true;
                 }
             }
         }
         
         //calcuates chance of jellyfish being eaten or eating something
         //if it is eaten/eats calls the eaten function to remove what has been eaten from the world.
-        if(item=='J'){
-            if((movedTo=='F')&&(r1.nextInt(100)<25)){//25% chance fish eats jelly
+        if(item == JELLYFISH){
+            if((movedTo == FISH) && (r1.nextInt(100) < 25)){//25% chance fish eats jelly
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='S')&&(r1.nextInt(100)<75)){//75% chance shark eats jelly
+            } else if((movedTo == SHARK) && (r1.nextInt(100) < 75)){//75% chance shark eats jelly
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='B')&&(r1.nextInt(100)<25)){//25% chance boat captures jelly
+            } else if((movedTo == BOAT) && (r1.nextInt(100) < 25)){//25% chance boat captures jelly
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='K')&&(r1.nextInt(100)<90)){//90% chance kraken eats jelly
+            } else if((movedTo == KRAKEN) && (r1.nextInt(100) < 90)){//90% chance kraken eats jelly
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='A')&&(r1.nextInt(100)<75)){//75% chance bird eats jelly
+            } else if((movedTo == BIRD) && (r1.nextInt(100) < 75)){//75% chance bird eats jelly
                 eaten(ocean, item, row, col, direction, checked);
             }else{//mark as checked
-                if(direction==0){
-                    checked[row+1][col]=true;
+                if(direction == 0){
+                    checked[row + 1][col] = true;
                 }
                 
-                if(direction==1){
-                    checked[row][col-1]=true;
+                if(direction == 1){
+                    checked[row][col - 1] = true;
                 }
                 
-                if(direction==2){
-                    checked[row-1][col]=true;
+                if(direction == 2){
+                    checked[row - 1][col] = true;
                 }
                 
-                if(direction==3){
-                    checked[row][col+1]=true;
+                if(direction == 3){
+                    checked[row][col + 1] = true;
                 }
             }
         }
         
         //calcuates chance of lobster being eaten or eating something
         //if it is eaten/eats calls the eaten function to remove what has been eaten from the world.
-        if(item=='L'){
-            if((movedTo=='F')&&(r1.nextInt(100)<25)){//25% chance lobster eats fish
-                ocean[row][col]='L';
+        if(item == LOBSTER){
+            if((movedTo == FISH) && (r1.nextInt(100) < 25)){//25% chance lobster eats fish
+                ocean[row][col] = LOBSTER;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='F')&&(lobsterEaten<50)){//50% chance fish eats lobster
+            } else if((movedTo == FISH) && (lobsterEaten < 50)){//50% chance fish eats lobster
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='S')&&(r1.nextInt(100)<25)){//25% chance shark eats lobster
+            } else if((movedTo == SHARK) && (r1.nextInt(100) < 25)){//25% chance shark eats lobster
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='B')&&(r1.nextInt(100)<25)){//25% chance boat captures lobster
+            } else if((movedTo == BOAT) && (r1.nextInt(100) < 25)){//25% chance boat captures lobster
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='J')&&(r1.nextInt(100)<25)){//25% chance lobster eats jelly
-                ocean[row][col]='L';
+            } else if((movedTo == JELLYFISH) && (r1.nextInt(100) < 25)){//25% chance lobster eats jelly
+                ocean[row][col] = LOBSTER;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='K')&&(r1.nextInt(100)<90)){//90% chance kraken eats lobster
+            } else if((movedTo == KRAKEN)&&(r1.nextInt(100) < 90)){//90% chance kraken eats lobster
                 eaten(ocean, item, row, col, direction, checked);
             }else{//marks as checked
-                if(direction==0){
-                    checked[row+1][col]=true;
+                if(direction == 0){
+                    checked[row + 1][col] = true;
                 }
                 
-                if(direction==1){
-                    checked[row][col-1]=true;
+                if(direction == 1){
+                    checked[row][col-1] = true;
                 }
                 
-                if(direction==2){
-                    checked[row-1][col]=true;
+                if(direction == 2){
+                    checked[row - 1][col] = true;
                 }
                 
-                if(direction==3){
-                    checked[row][col+1]=true;
+                if(direction == 3){
+                    checked[row][col+1] = true;
                 }
             }
         }
+        
         //calcuates chance of bird being eaten or eating something
         //if it is eaten/eats calls the eaten function to remove what has been eaten from the world.
-        if(item=='A'){
-            if((movedTo=='F')&&(r1.nextInt(100)<50)){//50% chance bird eats fish
-                ocean[row][col]='A';
+        if(item == BIRD){
+            if((movedTo == FISH) && (r1.nextInt(100) < 50)){//50% chance bird eats fish
+                ocean[row][col] = BIRD;
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='S')&&(r1.nextInt(100)<25)){//25% chance shark eats bird
+            } else if((movedTo == SHARK) && (r1.nextInt(100) < 25)){//25% chance shark eats bird
                 eaten(ocean, item, row, col, direction, checked);
-            }
-            else if((movedTo=='K')&&(r1.nextInt(100)<80)){//80% chance kraken eats bird
+            } else if((movedTo == KRAKEN) && (r1.nextInt(100) < 80)){//80% chance kraken eats bird
                 eaten(ocean, item, row, col, direction, checked);
             }else{//marked as checked
-                if(direction==0){
-                    checked[row+1][col]=true;
+                if(direction == 0){
+                    checked[row + 1][col] = true;
                 }
                 
-                if(direction==1){
-                    checked[row][col-1]=true;
+                if(direction == 1){
+                    checked[row][col - 1] = true;
                 }
                 
-                if(direction==2){
-                    checked[row-1][col]=true;
+                if(direction == 2){
+                    checked[row - 1][col] = true;
                 }
                 
-                if(direction==3){
-                    checked[row][col+1]=true;
+                if(direction == 3){
+                    checked[row][col + 1] = true;
                 }
             }
         }
@@ -1130,13 +1110,14 @@ public class OceanSimulationWRG {
         return mate;
     }
     
-    public static void mate(char[][]ocean, boolean[][]checked, char item, int row, int col, int direction){
+    public static void mate(char[][]ocean, boolean[][]checked, char item, 
+            int row, int col, int direction){
         int spot = r1.nextInt(4);
         //colcheck/rowcheck - checks that col/row is not outside the array on the negative side
-        int colCheck = col-1;
-        int rowCheck = row-1;
-        int rowNum = rows-1;
-        int colNum = cols-1;
+        int colCheck = col - 1;
+        int rowCheck = row - 1;
+        int rowNum = rows - 1;
+        int colNum = cols - 1;
        
         //checks if something new can be spawned
         if(((item != BOAT) && (item != JELLYFISH)) || ((item == ICEBURG) && 
@@ -1335,7 +1316,8 @@ public class OceanSimulationWRG {
     }
     
     //checks if the creature escapes the iceburg or is crushed by it- handles crushing and moving of iceburg
-    public static void crushed(char[][] ocean, char item, int row, int col, int direction, boolean[][]checked){
+    public static void crushed(char[][] ocean, char item, int row, int col, 
+            int direction, boolean[][]checked){
         char movedOnto = ocean[row][col];
         
         //sees if creature can escape
@@ -1369,7 +1351,8 @@ public class OceanSimulationWRG {
     }
     
     //move west - direction = 3
-    public static void moveWest(char[][]ocean, boolean[][]checked, char item, int row, int col, int direction){
+    public static void moveWest(char[][]ocean, boolean[][]checked, char item, 
+            int row, int col, int direction){
         //Sets a number to test that collumn to left exsists without changing collumn number
         int colCheck = col-1;
         
@@ -1477,7 +1460,8 @@ public class OceanSimulationWRG {
     }
     
     //move east- doirection = 1
-    public static void moveEast(char[][]ocean, boolean[][]checked, char item, int row, int col, int direction){
+    public static void moveEast(char[][]ocean, boolean[][]checked, char item, 
+            int row, int col, int direction){
         int colNum = cols-1;
         //checks if the spot is within the array
         if(col < colNum){
